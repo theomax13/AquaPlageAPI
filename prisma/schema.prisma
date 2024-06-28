@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Commune {
+  id          Int       @id @default(autoincrement())
+  nom         String    @unique
+  code_postal String
+  plages      Plage[]
+}
+
+model Plage {
+  id               Int            @id @default(autoincrement())
+  nom              String
+  latitude         Float?
+  longitude        Float?
+  description      String?
+  commune_id       Int
+  commune          Commune        @relation(fields: [commune_id], references: [id])
+  adresse1         String?
+  adresse2         String?
+  adresse3         String?
+  conditions_visite String?
+  labels           String?
+  handicap_acces   Boolean        @default(false)
+  groupes_acceptees Boolean?
+  animaux_acceptes Boolean?
+  url              String?
+  contacts         Contact[]
+  gestions         Gestion[]
+  tarifs           Tarif[]
+  ouvertures       Ouverture[]
+  langues          PlageLangue[]
+  services         PlageService[]
+  handicaps        PlageHandicap[]
+  equipements      PlageEquipement[]
+  activites        PlageActivite[]
+}
+
+model Contact {
+  id       Int     @id @default(autoincrement())
+  plage_id Int
+  plage    Plage   @relation(fields: [plage_id], references: [id])
+  email    String?
+  telephones Telephone[]
+}
+
+model Telephone {
+  id         Int     @id @default(autoincrement())
+  contact_id Int
+  contact    Contact @relation(fields: [contact_id], references: [id])
+  telephone  String
+  type       String
+}
+
+model Gestion {
+  id             Int     @id @default(autoincrement())
+  plage_id       Int
+  plage          Plage   @relation(fields: [plage_id], references: [id])
+  gestion_sociale String?
+}
+
+model Tarif {
+  id       Int     @id @default(autoincrement())
+  plage_id Int
+  plage    Plage   @relation(fields: [plage_id], references: [id])
+  nom      String?
+  prix1    Float?
+  prix2    Float?
+  description String?
+}
+
+model Ouverture {
+  id         Int       @id @default(autoincrement())
+  plage_id   Int
+  plage      Plage     @relation(fields: [plage_id], references: [id])
+  date_debut DateTime?
+  date_fin   DateTime?
+  horaires   Horaire[]
+}
+
+model Horaire {
+  id              Int       @id @default(autoincrement())
+  ouverture_id    Int
+  ouverture       Ouverture @relation(fields: [ouverture_id], references: [id])
+  heure_matin_debut DateTime?
+  heure_matin_fin   DateTime?
+  heure_aprem_debut DateTime?
+  heure_aprem_fin   DateTime?
+}
+
+model LangueUnique {
+  id     Int      @id @default(autoincrement())
+  langue String   @unique
+  plages PlageLangue[]
+}
+
+model ServiceUnique {
+  id      Int      @id @default(autoincrement())
+  service String   @unique
+  plages  PlageService[]
+}
+
+model HandicapUnique {
+  id       Int      @id @default(autoincrement())
+  handicap String   @unique
+  plages   PlageHandicap[]
+}
+
+model EquipementUnique {
+  id         Int      @id @default(autoincrement())
+  equipement String   @unique
+  plages     PlageEquipement[]
+}
+
+model ActiviteUnique {
+  id       Int      @id @default(autoincrement())
+  activite String   @unique
+  plages   PlageActivite[]
+}
+
+model PlageLangue {
+  plage_id Int
+  langue_id Int
+  plage     Plage   @relation(fields: [plage_id], references: [id])
+  langue    LangueUnique @relation(fields: [langue_id], references: [id])
+  @@id([plage_id, langue_id])
+}
+
+model PlageService {
+  plage_id Int
+  service_id Int
+  plage      Plage   @relation(fields: [plage_id], references: [id])
+  service    ServiceUnique @relation(fields: [service_id], references: [id])
+  @@id([plage_id, service_id])
+}
+
+model PlageHandicap {
+  plage_id Int
+  handicap_id Int
+  plage      Plage   @relation(fields: [plage_id], references: [id])
+  handicap   HandicapUnique @relation(fields: [handicap_id], references: [id])
+  @@id([plage_id, handicap_id])
+}
+
+model PlageEquipement {
+  plage_id Int
+  equipement_id Int
+  plage        Plage   @relation(fields: [plage_id], references: [id])
+  equipement   EquipementUnique @relation(fields: [equipement_id], references: [id])
+  @@id([plage_id, equipement_id])
+}
+
+model PlageActivite {
+  plage_id Int
+  activite_id Int
+  plage      Plage   @relation(fields: [plage_id], references: [id])
+  activite   ActiviteUnique @relation(fields: [activite_id], references: [id])
+  @@id([plage_id, activite_id])
+}
